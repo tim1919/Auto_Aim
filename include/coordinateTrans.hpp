@@ -33,6 +33,10 @@ private:
 class TargetSolver
 {
 public:
+
+    bool isBig = 0;
+
+
     bool init(void);
     bool readParas(std::string fileName);
     // bool receiveDta(void);
@@ -67,7 +71,7 @@ private:
     double v0_small = 15; // 小弹丸的初速度，这个也需要测
     double k_small = 7.1655E-5;
     double m_small = 0.0032;
-    double v0_big = 15.8; // 大弹丸的初速度，这个也需要测
+    double v0_big = 15.2; // 大弹丸的初速度，这个也需要测
     double k_big = 4.5857E-4;
     double m_big = 0.0041;
 
@@ -76,6 +80,7 @@ private:
     // unsigned long long int delta_t = 0; // 这个是调用我的周期，一定要调！！！
 
     int queue_length = 3; // 队列长度，即最小二乘时样本的个数
+    
 
     circularQueue<pose_pack> pack_pre;
 
@@ -329,12 +334,12 @@ pose_pack TargetSolver::coordinateTrans(const cv::Point3f &targetPoint, const st
     // P2D.push_back(cv::Point2f(0.6, 0.4));
     // P2D.push_back(cv::Point2f(0.2, 0.4));
 
-    bool isBig = 0;
 
     /*第二步：获取旋转向量以及平移向量*/
-    if (0 == isBig)
+    if (isBig)
     {
         cv::solvePnP(PW3D_Small, inputPoints, cameraMatrix, distCoeffs, rvec, tvec, false, cv::SOLVEPNP_ITERATIVE);
+        std::cout << "is_big!" << std::endl;
     }
     else
     {
@@ -404,11 +409,12 @@ pose_pack TargetSolver::coordinateTrans(const cv::Point3f &targetPoint, const st
     // get(yaw, pitch, roll);//这里需要通信那边的电控发给视觉的实时yaw，pitch，roll的值
     // printf("\n%ld\n",data.ts.GetTimeStamp(mt).time_ms);
     pose_pack pack = data.get_info(data.ts.GetTimeStamp(mt));
-    pack.ptz_yaw -= 0.185;
-    pack.ptz_pitch -= 1.44;
+    pack.ptz_yaw += 0.185;
+    pack.ptz_pitch += 1.44;
     // pack.ptz_roll += 0;
 
-    //printf("%lf\t%lf\n", pack.ptz_pitch, pack.ptz_yaw);
+    // printf("%lf ", pack.ptz_pitch);
+    
 
     cv::Mat YAW = (cv::Mat_<double>(4, 4) << cos(pack.ptz_yaw * acos(-1.0) / 180.0), -sin(pack.ptz_yaw * acos(-1.0) / 180.0), 0, 0, sin(pack.ptz_yaw * acos(-1.0) / 180.0), cos(pack.ptz_yaw * acos(-1.0) / 180.0), 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
     cv::Mat PITCH = (cv::Mat_<double>(4, 4) << 1, 0, 0, 0, 0, cos(pack.ptz_pitch * acos(-1.0) / 180.0), -sin(pack.ptz_pitch * acos(-1.0) / 180.0), 0, 0, sin(pack.ptz_pitch * acos(-1.0) / 180.0), cos(pack.ptz_pitch * acos(-1.0) / 180.0), 0, 0, 0, 0, 1);
@@ -424,7 +430,7 @@ pose_pack TargetSolver::coordinateTrans(const cv::Point3f &targetPoint, const st
     /*这里还得考虑边缘情况*/
     /*测试区*/
     // std::cout << "大地坐标系：";
-    // std::cout << "x = " << x_output.at<double>(0, 0) << ", y = " << x_output.at<double>(1, 0) << ", z = " << x_output.at<double>(2, 0) << std::endl;
+    std::cout << "x = " << x_output.at<double>(0, 0) << ", y = " << x_output.at<double>(1, 0) << ", z = " << x_output.at<double>(2, 0) << std::endl;
     // std::cout << "distance:" << powf32(x_output.at<double>(0, 0), 2) + powf32(x_output.at<double>(1, 0), 2) << std::endl;
 
     // data.sendTargetDataPack.pred_pitch = this->pitch_result;
@@ -448,9 +454,10 @@ pose_pack TargetSolver::traceCal(my_time &mt, my_data &md)
 
     // 方法二：直接接二元一次方程
     tan_theta = (1 - sqrt(1 - 2 * 9.8 * y / (v0_big * v0_big))) * k_big * v0_big * v0_big / (m_big * 9.8 * (exp(k_big * x / m_big) - 1)); // 这里最开始的1 - 待定，可能是1 +
-
+    
     this->yaw_result = -180 * atan2(target.x, target.y) / acos(-1.0);
     this->pitch_result = 180 * atan2(tan_theta, 1) / acos(-1.0);
+    std::cout << pitch_result << std::endl;
     // std::cout << "yaw: " << yaw << std::endl;
     // std::cout << "pitch: " << pitch << std::endl;
 

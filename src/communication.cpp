@@ -80,7 +80,7 @@ int main()
         // 取图
         // cv::imshow("test",frame);
         my_time mt;
-        vector<vector<Point>> cs = preprocess.PreProcess(frame, 57, 94, 255, 230);
+        vector<vector<Point>> cs = preprocess.PreProcess(frame, 243, 144, 255, 235);
         vector<LightBar> lightbars = preprocess.Contours2LightBar(cs);
         vector<Armor> Armors = preprocess.getArmor(lightbars);
         for (int i = 0; i < Armors.size(); i++)
@@ -92,20 +92,22 @@ int main()
 
         if (FliteredArmors.size() != 0)
         {
+            score_max = 0;
             for (int i = 0; i < FliteredArmors.size(); ++i)
             {
                 if (FliteredArmors[i].Score() > score_max)
                 {
-                    score_max = FliteredArmors[i].Score();
+                    score_max = (FliteredArmors[i].Score()>100)?FliteredArmors[i].Score()/2:FliteredArmors[i].Score();
                     i_max = i;
                 }
             }
             test.sendFlagPack.target_found = true;
-            // std::cout <<"FliteredArmors[i_max].getPoints()"<< FliteredArmors[i_max].getPoints() << std::endl;
+            // std::cout <<"FliteredArmors[i_max].getPoints()"<< FliteredArmors[i_max].getPointsAlter() << std::endl;
             // test.pose_pack_queue.front()
-            test.tep = ts.coordinateTrans(cv::Point3f(0, 0, 0), FliteredArmors[i_max].getPoints(), mt, test);
-            // test.tep.ptz_pitch += 2;
-            std::cout<<"end"<<std::endl;
+            ts.isBig = FliteredArmors[i_max].Score() > 100?1:0;
+            test.tep = ts.coordinateTrans(cv::Point3f(0, 0, 0), FliteredArmors[i_max].getPointsAlter(), mt, test);
+            test.tep.ptz_pitch += 2;
+            // std::cout<<"end"<<std::endl;
         }
         else
         {

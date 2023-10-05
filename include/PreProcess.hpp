@@ -57,14 +57,14 @@ public:
 		inRange(grayImage, grey, greymax, binaryImageG);
 		threshold(binaryImageG & binaryImageR, binaryImage, thereshold, 255, THRESH_BINARY);
 		dilate(binaryImage, imgdilate, kernal);
-		// imshow("imgdilate", binaryImage);
+		//imshow("imgdilate", binaryImage);
 		vector<vector<Point>> cs = getContours(imgdilate);
 		contourimg = DrawContours(input, cs);
 		//imshow("contourimg", contourimg);
 		dilate(contourimg, newcontours, kernal2);
 		vector<vector<Point>> cs2 = getContours(newcontours);
 		ProcessedImage = DrawContours(input, cs2);
-		// imshow("ProcessedImage",ProcessedImage);
+		 //imshow("ProcessedImage",ProcessedImage);
 		return cs2;
 	}
 
@@ -122,11 +122,11 @@ public:
 					if (lightBars[0].is_an_armor(lightBars[i], lightBars[j]))
 					{
 						Armor armor(lightBars[i], lightBars[j]);
-						if (lightBars[i].Armor_index && (armor.Score() >= armors[lightBars[i].Armor_index - 1].Score()))
+						if (lightBars[i].Armor_index && (((armor.Score()>100)?armor.Score()/2:armor.Score()) >= ((armors[lightBars[i].Armor_index - 1].Score()>100)?armors[lightBars[i].Armor_index - 1].Score()/2:armors[lightBars[i].Armor_index - 1].Score())))
 							armors[lightBars[i].Armor_index - 1] = armor;
-						else if (lightBars[j].Armor_index && (armor.Score() >= armors[lightBars[j].Armor_index - 1].Score()))
+						else if (lightBars[j].Armor_index && (((armor.Score()>100)?armor.Score()/2:armor.Score()) >= ((armors[lightBars[i].Armor_index - 1].Score()>100)?armors[lightBars[i].Armor_index - 1].Score()/2:armors[lightBars[i].Armor_index - 1].Score())))
 							armors[lightBars[j].Armor_index - 1] = armor;
-						else if ((!(lightBars[i].Armor_index || lightBars[j].Armor_index)) && (armor.Score() > 80))
+						else if ((!(lightBars[i].Armor_index || lightBars[j].Armor_index)) && (((armor.Score()>100)?armor.Score()/2:armor.Score()) > 80))
 						{
 							lightBars[i].Armor_index = armors.size() + 1;
 							lightBars[j].Armor_index = armors.size() + 1;
