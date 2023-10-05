@@ -1,3 +1,0 @@
-/home/dji/projects/Auto_Aim/build/CMakeFiles/rebuild_cache.dir
-/home/dji/projects/Auto_Aim/build/CMakeFiles/edit_cache.dir
-/home/dji/projects/Auto_Aim/build/CMakeFiles/communication.dir
